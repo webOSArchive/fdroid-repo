@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Writes the repository's web page: repo/index.html from web/index.html, and its QR code.
+"""Writes the web pages of the repository and its archive (repo/ and archive/index.html) from
+web/index.html, with their QR codes.
 
     python3 -I make-page.py      (add-apks.sh runs it after every fdroid update)
 
@@ -44,27 +45,51 @@ def menu():
     return re.sub(r'<!-- Matomo -->.*?<!-- End Matomo -->\s*', '', html, flags=re.S).strip()
 
 
+REPO_LEAD = ('Android apps from the webOS community, among them '
+             '<a href="https://www.webosarchive.org/lunacy/">Lunacy</a>, which runs webOS apps on '
+             "Android. Add this repository to F-Droid and you'll get each app's updates as they're "
+             'released.')
+ARCHIVE_LEAD = ('Older versions of the apps in the <a href="../repo/">webOS Archive F-Droid '
+                "repository</a>, for going back to one. You don't need this to get updates: add the "
+                'repository itself, and turn on its archive in F-Droid only if you want older versions.')
+
+PAGES = {
+    'repo': {'@@TITLE@@': 'F-Droid Repository', '@@HEADING@@': 'webOS Archive F-Droid Repository',
+             '@@LEAD@@': REPO_LEAD, '@@APPS_HEADING@@': 'Apps', '@@EMPTY@@': 'No apps yet.',
+             '@@ALL_VERSIONS@@': 'false'},
+    'archive': {'@@TITLE@@': 'F-Droid Archive', '@@HEADING@@': 'webOS Archive F-Droid Archive',
+                '@@LEAD@@': ARCHIVE_LEAD, '@@APPS_HEADING@@': 'Older versions',
+                '@@EMPTY@@': 'No older versions yet: every version is still in the repository.',
+                '@@ALL_VERSIONS@@': 'true'},
+}
+
+
 def main():
     with open(os.path.join(HERE, 'config.yml')) as f:
         config = yaml.safe_load(f)
-    address = config['repo_url'].rstrip('/')
     fp = fingerprint(config)
+    the_menu = menu()
     with open(os.path.join(HERE, 'web', 'index.html')) as f:
-        page = f.read()
-    for key, value in {
-        '@@MENU@@': menu(),
-        '@@ADDRESS@@': address,
-        '@@ADDRESS_NOSCHEME@@': re.sub(r'^https?://', '', address),
-        '@@FINGERPRINT@@': fp,
-        '@@FINGERPRINT_SPACED@@': ' '.join(fp[i:i + 2] for i in range(0, len(fp), 2)),
-    }.items():
-        page = page.replace(key, value)
-    assert '@@' not in page, 'a placeholder in web/index.html was left unfilled'
-    with open(os.path.join(HERE, 'repo', 'index.html'), 'w') as f:
-        f.write(page)
-    # The same link F-Droid's own page encodes: the client adds the repository from it.
-    qrcode.make(f'{address}?fingerprint={fp}', border=2).save(os.path.join(HERE, 'repo', 'index.png'))
-    print('make-page: repo/index.html and repo/index.png')
+        template = f.read()
+    for folder, words in PAGES.items():
+        # The archive is a repository of its own, beside the main one, signed by the same key.
+        address = re.sub(r'/repo$', '/' + folder, config['repo_url'].rstrip('/'))
+        page = template
+        for key, value in dict(words, **{
+            '@@MENU@@': the_menu,
+            '@@ADDRESS@@': address,
+            '@@ADDRESS_NOSCHEME@@': re.sub(r'^https?://', '', address),
+            '@@FINGERPRINT@@': fp,
+            '@@FINGERPRINT_SPACED@@': ' '.join(fp[i:i + 2] for i in range(0, len(fp), 2)),
+        }).items():
+            page = page.replace(key, value)
+        assert '@@' not in page, 'a placeholder in web/index.html was left unfilled'
+        os.makedirs(os.path.join(HERE, folder), exist_ok=True)
+        with open(os.path.join(HERE, folder, 'index.html'), 'w') as f:
+            f.write(page)
+        # The same link F-Droid's own page encodes: the client adds the repository from it.
+        qrcode.make(f'{address}?fingerprint={fp}', border=2).save(os.path.join(HERE, folder, 'index.png'))
+        print(f'make-page: {folder}/index.html and {folder}/index.png')
 
 
 if __name__ == '__main__':

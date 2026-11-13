@@ -9,7 +9,7 @@
   <meta property="og:title" content="webOS Archive F-Droid Repository">
   <meta property="og:description" content="Android apps from the webOS community, with updates through F-Droid.">
   <meta property="og:image" content="@@ADDRESS@@/icons/icon.png">
-  <title>F-Droid Repository | webOS Archive</title>
+  <title>@@TITLE@@ | webOS Archive</title>
   <link id="favicon" rel="icon" type="image/png" href="icons/icon.png">
   <link href="https://www.webosarchive.org/app-template/web.css" rel="stylesheet" type="text/css">
   <style>
@@ -60,8 +60,8 @@
 <tr><td id="page-body" align="center" valign="middle">
   <div id="row">
     <div id="content" align="left">
-      <p style="font-size:30px;font-weight:600;"><img src="icons/icon.png" width="60" height="60" alt="" style="vertical-align:top;height:60px;width:60px;"> webOS Archive F-Droid Repository</p>
-      <p>Android apps from the webOS community, among them <a href="https://www.webosarchive.org/lunacy/">Lunacy</a>, which runs webOS apps on Android. Add this repository to F-Droid and you'll get each app's updates as they're released.</p>
+      <p style="font-size:30px;font-weight:600;"><img src="icons/icon.png" width="60" height="60" alt="" style="vertical-align:top;height:60px;width:60px;"> @@HEADING@@</p>
+      <p>@@LEAD@@</p>
 
       <a class="add-button" href="fdroidrepos://@@ADDRESS_NOSCHEME@@?fingerprint=@@FINGERPRINT@@">Add to F-Droid</a>
       <p class="fineprint">On your Android device, with <a href="https://f-droid.org/">F-Droid</a> installed. Or scan the code with F-Droid, or add it by hand: <b>Settings &rarr; Repositories &rarr; +</b>, and enter</p>
@@ -77,7 +77,7 @@
   </div>
 
   <div id="apps">
-    <h2>Apps</h2>
+    <h2>@@APPS_HEADING@@</h2>
     <div id="app-list"><p class="fineprint">Loading the app list&hellip;</p></div>
   </div>
 
@@ -123,12 +123,14 @@
       var m = apps[i].p.metadata, versions = [];
       for (var h in apps[i].p.versions) versions.push(apps[i].p.versions[h]);
       versions.sort(function (a, b) { return b.manifest.versionCode - a.manifest.versionCode; });
-      var newest = versions.length ? versions[0].manifest.versionCode : null;
+      var newest = versions.length ? versions[0].manifest.versionCode : null, all = @@ALL_VERSIONS@@;
       var icon = en(m.icon);
       var links = '';
-      for (var v = 0; v < versions.length && versions[v].manifest.versionCode === newest; v++) {
+      for (var v = 0; v < versions.length && (all || versions[v].manifest.versionCode === newest); v++) {
         var f = versions[v].file, abi = versions[v].manifest.nativecode;
-        var label = abi && abi.length === 1 ? (ABI[abi[0]] || abi[0]) + ' APK' : 'APK';
+        var label = (all ? versions[v].manifest.versionName + ' ' : '') +
+          (abi && abi.length === 1 ? (ABI[abi[0]] || abi[0]) + ' APK' : 'APK');
+        if (all && v > 0) links += '<br>';
         links += '<a href="' + esc(f.name.replace(/^\//, '')) + '">&#8681; ' + esc(label) + '</a> <small>(' + mb(f.size) + ')</small> ';
       }
       if (m.sourceCode) links += '<a href="' + esc(m.sourceCode) + '">Source</a>';
@@ -136,11 +138,11 @@
       html += '<div class="app">' +
         (icon ? '<img class="icon" src="' + esc(icon.name.replace(/^\//, '')) + '" alt="">' : '') +
         '<div class="body"><div class="name">' + esc(en(m.name)) +
-        (versions.length ? '<span class="version">' + esc(versions[0].manifest.versionName) + '</span>' : '') + '</div>' +
+        (versions.length && !all ? '<span class="version">' + esc(versions[0].manifest.versionName) + '</span>' : '') + '</div>' +
         '<div class="summary">' + esc(en(m.summary)) + '</div>' +
         '<div class="links">' + links + '</div></div></div>';
     }
-    list.innerHTML = html || '<p class="fineprint">No apps yet.</p>';
+    list.innerHTML = html || '<p class="fineprint">@@EMPTY@@</p>';
   };
   xhr.send(null);
 })();
