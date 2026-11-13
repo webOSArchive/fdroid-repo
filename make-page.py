@@ -12,6 +12,7 @@ page itself, so it never goes stale.
 """
 import os
 import re
+import shutil
 import subprocess
 import urllib.request
 
@@ -56,11 +57,14 @@ ARCHIVE_LEAD = ('Older versions of the apps in the <a href="../repo/">webOS Arch
 PAGES = {
     'repo': {'@@TITLE@@': 'F-Droid Repository', '@@HEADING@@': 'webOS Archive F-Droid Repository',
              '@@LEAD@@': REPO_LEAD, '@@APPS_HEADING@@': 'Apps', '@@EMPTY@@': 'No apps yet.',
-             '@@ALL_VERSIONS@@': 'false'},
+             '@@ALL_VERSIONS@@': 'false',
+             '@@DESCRIPTION@@': 'Android apps from the webOS community, among them Lunacy, which runs '
+                                "webOS apps on Android. Add it to F-Droid for each app's updates."},
     'archive': {'@@TITLE@@': 'F-Droid Archive', '@@HEADING@@': 'webOS Archive F-Droid Archive',
                 '@@LEAD@@': ARCHIVE_LEAD, '@@APPS_HEADING@@': 'Older versions',
                 '@@EMPTY@@': 'No older versions yet: every version is still in the repository.',
-                '@@ALL_VERSIONS@@': 'true'},
+                '@@ALL_VERSIONS@@': 'true',
+                '@@DESCRIPTION@@': 'Older versions of the apps in the webOS Archive F-Droid repository.'},
 }
 
 
@@ -87,6 +91,10 @@ def main():
         os.makedirs(os.path.join(HERE, folder), exist_ok=True)
         with open(os.path.join(HERE, folder, 'index.html'), 'w') as f:
             f.write(page)
+        # Its link-preview card (make-cards.py), at the address og:image names: in a folder of its
+        # own, since fdroid update takes any file at the top of repo/ for a package.
+        os.makedirs(os.path.join(HERE, folder, 'preview'), exist_ok=True)
+        shutil.copyfile(os.path.join(HERE, 'web', f'card-{folder}.png'), os.path.join(HERE, folder, 'preview', 'card.png'))
         # The same link F-Droid's own page encodes: the client adds the repository from it.
         qrcode.make(f'{address}?fingerprint={fp}', border=2).save(os.path.join(HERE, folder, 'index.png'))
         print(f'make-page: {folder}/index.html and {folder}/index.png')

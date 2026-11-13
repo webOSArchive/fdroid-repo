@@ -18,7 +18,9 @@ For whoever holds the repository's signing key. Contributors don't need any of t
   www.webosarchive.org (its analytics left out; `web/menu-fallback.html` if it can't be
   reached). add-apks.sh runs it after every update. fdroid update leaves a page alone once it
   lacks fdroid's "auto-generated" comment, so this one stays. The app list is read from
-  `index-v2.json` by the page itself.
+  `index-v2.json` by the page itself. Each page's link preview (Open Graph and Twitter tags)
+  shows `web/card-repo.png` or `web/card-archive.png`, copied to `preview/card.png`; they are
+  drawn by `make-cards.py` in webOS's Prelude font, and committed, so run it only to change them.
 - `icons/repo-icon.png`: the repository's icon (Lunacy's, for now: see Lunacy's Meta/NOTICE).
 
 Not in git: `config.yml` (the repository's settings and its keystore's passwords),
