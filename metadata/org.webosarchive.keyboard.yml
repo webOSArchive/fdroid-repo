@@ -6,6 +6,7 @@ WebSite: https://github.com/webOSArchive/Lunacy/tree/main/LunaKeyboard
 SourceCode: https://github.com/webOSArchive/Lunacy/tree/main/LunaKeyboard
 IssueTracker: https://github.com/webOSArchive/Lunacy/issues
 Changelog: https://github.com/webOSArchive/Lunacy/releases
+AllowedAPKSigningKeys: 9546873669ad31e760a8338df4b011186376399c92aee3e928e9730edb203b04
 
 Name: LunaKeyboard
 Summary: An Android keyboard that looks and behaves like the HP TouchPad's

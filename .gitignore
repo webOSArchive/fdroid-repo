@@ -20,3 +20,5 @@ tmp/
 srclibs/
 # The repository icon, copied from icons/ by add-apks.sh (fdroid reads it here).
 /icon.png
+# Python bytecode.
+__pycache__/

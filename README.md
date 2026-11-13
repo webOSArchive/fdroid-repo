@@ -12,34 +12,72 @@ is built from source here, and F-Droid's own inclusion rules don't apply.
 
 ## What is here
 
-- `metadata/<application id>.yml`: each app's name, summary, description, licence and links,
-  in F-Droid's metadata format. An app needs one before its APKs can be added.
-- `add-apks.sh <apk>...`: copies APKs into `repo/` under names of their own
-  (`<id>_<versionCode>[_arm32|_arm64].apk`) and re-signs the index. With no arguments it
-  only re-signs, after a change to `metadata/`.
+- `metadata/<application id>.yml`: each app's name, summary, description, licence, links and
+  the signing keys its APKs may carry (`AllowedAPKSigningKeys`), in F-Droid's metadata format.
+- `sources/<application id>.yml`: where its releases are, for `fetch-new.py`.
+- `fetch-new.py`: takes each app's newest GitHub release, checks it, and adds what is new.
+- `add-apks.sh <apk>...`: adds APKs on hand (copied into `repo/` as
+  `<id>_<versionCode>[_arm32|_arm64].apk`) and re-signs the index. With no arguments it only
+  re-signs, after a change to `metadata/`.
 - `icons/repo-icon.png`: the repository's icon (Lunacy's, for now: see Lunacy's Meta/NOTICE).
 
 Not in git: `config.yml` (the repository's settings and its keystore's passwords),
 `keystore.p12` (its signing key), and `repo/` and `archive/`, which `fdroid update` writes.
-`repo/` holds the only copy of every APK published, so keep it with the backups too.
+The APKs live in `repo/`, never in git: a few releases of Lunacy alone would outgrow it.
+
+## Adding your app
+
+Send a pull request with two files. Your APKs stay on your own GitHub releases; the
+repository's maintainer fetches them from there.
+
+1. `metadata/<your application id>.yml`, after Lunacy's:
+
+   ```yaml
+   Categories:
+     - System
+   License: Apache-2.0
+   AuthorName: Your Name
+   WebSite: https://github.com/you/yourapp
+   SourceCode: https://github.com/you/yourapp
+   IssueTracker: https://github.com/you/yourapp/issues
+   Changelog: https://github.com/you/yourapp/releases
+   AllowedAPKSigningKeys: <your signing certificate's SHA-256>
+
+   Name: Your App
+   Summary: One line, 80 characters at most
+   Description: |-
+       What it does, in plain text. A paragraph or two.
+   ```
+
+   `AllowedAPKSigningKeys` is your release key's certificate digest, from
+   `apksigner verify --print-certs your-app-release.apk` ("Signer #1 certificate SHA-256
+   digest"). An APK signed by any other key is refused, so a release page that was tampered
+   with can't put another app in your app's place.
+2. `sources/<your application id>.yml`:
+
+   ```yaml
+   GitHub: you/yourapp
+   Assets:
+     - yourapp-release.apk
+   ```
+
+   `Assets` are the names (or `*` patterns) of the release assets to take: one APK, or one per
+   ABI with the same version code. The newest release that isn't a draft is taken; add
+   `Prereleases: false` to skip pre-releases.
+
+Each later release is picked up the next time the maintainer runs `fetch-new.py`: publish it
+on GitHub with the next version code, and that's all. The APKs must be release builds, signed
+the same way each time, with a version code that goes up.
 
 ## Publishing
 
-1. `./add-apks.sh path/to/app-release.apk ...` (Lunacy: `Meta/fdroid/update-repo.sh` in its
-   own repository, after `./build.sh publish`).
+1. `python3 -I fetch-new.py`: every app's new releases, checked and added. (Or
+   `./add-apks.sh <apk>...` for APKs on hand; Lunacy's `Meta/fdroid/update-repo.sh` does this
+   with a fresh build before its release is on GitHub.)
 2. Upload **only** `repo/` and `archive/` to `feeds/fdroid/` on stacks.webosarchive.org, by
-   hand. Never the folder itself: `keystore.p12` and `config.yml` are the signing key and its
-   passwords, and anything else here is of no use to the client.
+   hand. The rest of this folder stays here.
 
 Once an app has more than `archive_older` (3) versions, the oldest move to `archive/`.
-
-## Adding an app
-
-1. Write `metadata/<application id>.yml`: `Categories`, `License`, `AuthorName`, `WebSite`,
-   `SourceCode`, `IssueTracker`, `Changelog`, `Name`, `Summary` (80 characters at most) and
-   `Description`. Copy one of Lunacy's.
-2. `./add-apks.sh` its release APKs. An app with one APK per ABI gives them the same version
-   code; the client picks the one the device runs.
 
 ## The signing key
 

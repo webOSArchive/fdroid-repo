@@ -1,0 +1,5 @@
+# Where fetch-new.py finds Lunacy's releases: the newest on GitHub that isn't a draft.
+GitHub: webOSArchive/Lunacy
+Assets:
+  - AndroidLuna-arm32-release.apk
+  - AndroidLuna-arm64-release.apk

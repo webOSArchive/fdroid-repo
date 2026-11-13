@@ -7,6 +7,7 @@ WebSite: https://github.com/webOSArchive/Lunacy
 SourceCode: https://github.com/webOSArchive/Lunacy
 IssueTracker: https://github.com/webOSArchive/Lunacy/issues
 Changelog: https://github.com/webOSArchive/Lunacy/releases
+AllowedAPKSigningKeys: 9546873669ad31e760a8338df4b011186376399c92aee3e928e9730edb203b04
 
 Name: Lunacy
 Summary: Run legacy webOS apps inside a shell that looks and feels like webOS
