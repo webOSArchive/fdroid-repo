@@ -1,0 +1,22 @@
+# Secrets: the repository's signing key, and config.yml, which holds its passwords.
+# Back both up somewhere safe; they are the repository's identity.
+keystore.p12
+config.yml
+# ...and any copy or other key: backups, editor files, other keystore formats.
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.pem
+*.key
+config.yml*
+*.bak
+*~
+.env
+# What fdroid update generates, and its scratch space: rebuilt from the APKs.
+repo/
+archive/
+tmp/
+srclibs/
+# The repository icon, copied from icons/ by add-apks.sh (fdroid reads it here).
+/icon.png
