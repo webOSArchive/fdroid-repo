@@ -1,110 +1,101 @@
-# The webOS Archive's F-Droid repository
+# webOS Archive F-Droid repository
 
-An F-Droid repository for the webOS Archive's Android apps, hosted beside its Preware feeds:
-**https://stacks.webosarchive.org/feeds/fdroid/repo**. Users add that address in the F-Droid
-client (or open `repo/index.html` there for a link and QR code) and get each app's releases
-from it. The address has to end in `/repo`: fdroidserver refuses anything else, and finds
-the archive beside it at `/archive`.
+An F-Droid repository for Android apps from the webOS community, hosted by the webOS Archive
+beside its Preware feeds. If you've made an Android app for webOS fans (a port, a companion,
+a tool), you can publish it here, and people get your updates through the F-Droid client.
 
-Each app here is its developer's own release build, signed with the app's usual key, so a
-copy installed from GitHub or elsewhere updates from here and the other way round. Nothing
-is built from source here, and F-Droid's own inclusion rules don't apply.
+**Repository address:** `https://stacks.webosarchive.org/feeds/fdroid/repo`
 
-## What is here
-
-- `metadata/<application id>.yml`: each app's name, summary, description, licence, links and
-  the signing keys its APKs may carry (`AllowedAPKSigningKeys`), in F-Droid's metadata format.
-- `sources/<application id>.yml`: where its releases are, for `fetch-new.py`.
-- `fetch-new.py`: takes each app's newest GitHub release, checks it, and adds what is new.
-- `add-apks.sh <apk>...`: adds APKs on hand (copied into `repo/` as
-  `<id>_<versionCode>[_arm32|_arm64].apk`) and re-signs the index. With no arguments it only
-  re-signs, after a change to `metadata/`.
-- `icons/repo-icon.png`: the repository's icon (Lunacy's, for now: see Lunacy's Meta/NOTICE).
-
-Not in git: `config.yml` (the repository's settings and its keystore's passwords),
-`keystore.p12` (its signing key), and `repo/` and `archive/`, which `fdroid update` writes.
-The APKs live in `repo/`, never in git: a few releases of Lunacy alone would outgrow it.
+You keep building, signing and releasing your app the way you do now. The repository takes
+your release APKs straight from your GitHub releases, checks them, and lists them. Nothing
+is rebuilt, re-signed or changed, so people who installed your app from GitHub get updates
+from here and the other way round.
 
 ## Adding your app
 
-Send a pull request with two files. Your APKs stay on your own GitHub releases; the
-repository's maintainer fetches them from there.
+Open a pull request that adds two files, both named after your app's application id
+(`com.example.myapp`).
 
-1. `metadata/<your application id>.yml`, after Lunacy's:
+### 1. `metadata/<application id>.yml`: what people see
 
-   ```yaml
-   Categories:
-     - System
-   License: Apache-2.0
-   AuthorName: Your Name
-   WebSite: https://github.com/you/yourapp
-   SourceCode: https://github.com/you/yourapp
-   IssueTracker: https://github.com/you/yourapp/issues
-   Changelog: https://github.com/you/yourapp/releases
-   AllowedAPKSigningKeys: <your signing certificate's SHA-256>
+```yaml
+Categories:
+  - System
+License: Apache-2.0
+AuthorName: Your Name
+WebSite: https://github.com/you/myapp
+SourceCode: https://github.com/you/myapp
+IssueTracker: https://github.com/you/myapp/issues
+Changelog: https://github.com/you/myapp/releases
+AllowedAPKSigningKeys: <your signing certificate's SHA-256>
 
-   Name: Your App
-   Summary: One line, 80 characters at most
-   Description: |-
-       What it does, in plain text. A paragraph or two.
-   ```
+Name: My App
+Summary: One line, 80 characters at most
+Description: |-
+    What your app does, in plain text: a paragraph or two. A blank line starts a new
+    paragraph, and lines starting with "* " make a list.
+```
 
-   `AllowedAPKSigningKeys` is your release key's certificate digest, from
-   `apksigner verify --print-certs your-app-release.apk` ("Signer #1 certificate SHA-256
-   digest"). An APK signed by any other key is refused, so a release page that was tampered
-   with can't put another app in your app's place.
-2. `sources/<your application id>.yml`:
+- **Categories** are one or more of F-Droid's usual ones, such as `Games`, `Internet`,
+  `Multimedia`, `Phone & SMS`, `System`, `Theming` or `Writing`.
+- **License** is an SPDX identifier (`Apache-2.0`, `GPL-3.0-or-later`, `MIT`...).
+- **AllowedAPKSigningKeys** is the SHA-256 of the certificate you sign releases with. Get it
+  from any release APK with the Android SDK's `apksigner`:
 
-   ```yaml
-   GitHub: you/yourapp
-   Assets:
-     - yourapp-release.apk
-   ```
+  ```sh
+  apksigner verify --print-certs myapp-release.apk | grep SHA-256
+  ```
 
-   `Assets` are the names (or `*` patterns) of the release assets to take: one APK, or one per
-   ABI with the same version code. The newest release that isn't a draft is taken; add
-   `Prereleases: false` to skip pre-releases.
+  Use the 64 hex characters after "SHA-256 digest:". APKs signed with any other key are
+  refused, so if your release page is ever tampered with, nobody can put another app in
+  your app's place.
 
-Each later release is picked up the next time the maintainer runs `fetch-new.py`: publish it
-on GitHub with the next version code, and that's all. The APKs must be release builds, signed
-the same way each time, with a version code that goes up.
+[Lunacy's metadata](metadata/org.webosarchive.lunacy.yml) is a complete example.
 
-## Publishing
+### 2. `sources/<application id>.yml`: where your releases are
 
-1. `python3 -I fetch-new.py`: every app's new releases, checked and added. (Or
-   `./add-apks.sh <apk>...` for APKs on hand; Lunacy's `Meta/fdroid/update-repo.sh` does this
-   with a fresh build before its release is on GitHub.)
-2. Upload **only** `repo/` and `archive/` to `feeds/fdroid/` on stacks.webosarchive.org, by
-   hand. The rest of this folder stays here.
+```yaml
+GitHub: you/myapp
+Assets:
+  - myapp-release.apk
+```
 
-Once an app has more than `archive_older` (3) versions, the oldest move to `archive/`.
+- **GitHub** is the repository whose releases hold your APKs.
+- **Assets** are the file names to take from each release. `*` works as a wildcard. If you
+  ship one APK per ABI, list each one, and give them all the same version code; F-Droid
+  installs the one that fits the device.
+  ([Lunacy's](sources/org.webosarchive.lunacy.yml) does this.)
+- The newest release that isn't a draft is used, pre-releases included. Add
+  `Prereleases: false` to skip them.
 
-## The signing key
+### Before you open the pull request
 
-**Back up `keystore.p12` and `config.yml`.** The key is the repository's identity: losing it
-means every user has to remove the repository and add it again. Its fingerprint (SHA-256),
-which users can check when they add the repository:
+- Your APKs are **release builds**, signed with the same key every time.
+- Each release has a **higher version code** than the last.
+- Your newest GitHub release has the APKs attached under the names in `sources/`.
+- The application id is yours, and isn't already listed here.
+
+Once your pull request is merged, your app appears at the next update of the repository.
+
+## Releasing updates
+
+Publish a new GitHub release with the APKs attached and a higher version code. That's all:
+the repository picks it up at its next update. You don't need another pull request unless
+you change your description, your asset names or your signing key.
+
+To change your signing key, send a pull request adding the new key to
+`AllowedAPKSigningKeys` (as a list, both keys during the changeover). Bear in mind that
+Android itself won't update an installed app with one signed by a different key, so your
+users would have to uninstall first.
+
+## Using the repository
+
+In the F-Droid client: **Settings → Repositories → +**, and enter
+`https://stacks.webosarchive.org/feeds/fdroid/repo`. Or open that address in a browser on
+your phone for a link and QR code. The repository's fingerprint (SHA-256) is:
 
     E441B611BFE19109A873451865AEE9871800E9EF8677F725CD3F31C1182FC96E
 
-It was made on 2026-11-13 with keytool (PKCS12, RSA 4096, alias `webosarchive`); config.yml
-has `repo_url`, `repo_name` ("webOS Archive"), `repo_description`, `repo_icon: icon.png`
-(which add-apks.sh copies from icons/) and `archive_older: 3`.
+## Maintaining the repository
 
-## fdroidserver
-
-fdroidserver 2.4.5 with androguard 4.1.4, in a virtualenv at `~/.local/share/fdroidserver`
-that also sees the system's packages. Ubuntu's own fdroidserver (2.2.1, with androguard 3.4)
-can't read APKs from AGP 8 ("res1 must be zero!"), but is installed for its dependencies.
-pip's resolver can run for a very long time on fdroidserver's dependencies, so the venv takes
-exact versions with no dependency resolution:
-
-    sudo apt install fdroidserver python3.12-venv
-    python3 -m venv --system-site-packages ~/.local/share/fdroidserver
-    P=~/.local/share/fdroidserver/bin/pip
-    $P install --no-deps --only-binary :all: androguard==4.1.4
-    $P install --no-deps fdroidserver==2.4.5 apkInspector loguru mutf8 platformdirs \
-        puremagic python-vagrant sdkmanager dataset
-
-add-apks.sh runs `fdroid update` under a 6 GB memory cap and a 15-minute timeout; it takes a
-few seconds.
+Publishing, the signing key and the tools: see [MAINTAINING.md](MAINTAINING.md).

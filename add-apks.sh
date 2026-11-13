@@ -7,7 +7,7 @@
 # Each APK is copied into repo/ as <application id>_<versionCode>[_<abi>].apk, so a release
 # never replaces an earlier one; one with the same name and different bytes is refused, since
 # a version code is published once. Every app needs metadata/<application id>.yml first.
-# Afterwards, upload repo/ and archive/ (README.md).
+# Afterwards, upload repo/ and archive/ (MAINTAINING.md).
 set -eu
 cd "$(dirname "$0")"
 FDROID=${FDROID:-$HOME/.local/share/fdroidserver/bin/fdroid}
@@ -15,8 +15,8 @@ SDK=${ANDROID_HOME:-$HOME/Android/Sdk}
 AAPT2=$(ls -d "$SDK"/build-tools/*/aapt2 | sort -V | tail -1)
 
 die() { echo "add-apks: $*" >&2; exit 1; }
-[ -f config.yml ] && [ -f keystore.p12 ] || die "config.yml or keystore.p12 is missing (README.md)"
-[ -x "$FDROID" ] || die "no fdroid at $FDROID (README.md)"
+[ -f config.yml ] && [ -f keystore.p12 ] || die "config.yml or keystore.p12 is missing (MAINTAINING.md)"
+[ -x "$FDROID" ] || die "no fdroid at $FDROID (MAINTAINING.md)"
 
 for apk; do
     [ -f "$apk" ] || die "$apk: no such file"
