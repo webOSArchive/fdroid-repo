@@ -32,10 +32,24 @@ for apk; do
     else mkdir -p repo && cp "$apk" "$dest" && echo "added $(basename "$dest")"; fi
 done
 
-cp icons/repo-icon.png icon.png
 # Capped and niced, so a runaway can't take the machine with it; fdroid update itself takes
-# seconds and well under a gigabyte.
-ANDROID_HOME=$SDK systemd-run --user --scope -q -p MemoryMax=6G timeout 900 nice "$FDROID" update
+# seconds and well under a gigabyte. Without systemd (macOS, some Linux), a virtual-memory
+# limit where the shell has one, and a timeout where there is one.
+capped() {
+    if command -v systemd-run >/dev/null 2>&1 && systemd-run --user --scope -q true 2>/dev/null; then
+        systemd-run --user --scope -q -p MemoryMax=6G timeout 900 nice "$@"
+    else
+        (
+            ulimit -v 8000000 2>/dev/null || true
+            t=$(command -v timeout || command -v gtimeout || true)
+            if [ -n "$t" ]; then nice "$t" 900 "$@"; else nice "$@"; fi
+        )
+    fi
+}
+
+cp icons/repo-icon.png icon.png
+ANDROID_HOME=$SDK; export ANDROID_HOME
+capped "$FDROID" update
 # The repository's web page, in the webOS Archive's site template (make-page.py).
 python3 -I make-page.py
 echo "Ready to upload: only repo/ and archive/ (the rest stays here) to https://stacks.webosarchive.org/feeds/fdroid/"

@@ -27,6 +27,31 @@ Not in git: `config.yml` (the repository's settings and its keystore's passwords
 `keystore.p12` (its signing key), and `repo/` and `archive/`, which `fdroid update` writes.
 The APKs live in `repo/`, never in git: a few releases of Lunacy alone would outgrow it.
 
+## Setting up on another machine
+
+A clone has the tools, the docs and every app's listing, but not these; bring them across
+before running anything:
+
+1. **`keystore.p12` and `config.yml`**, by hand (a USB stick, a password manager), never
+   through the web server or git. Put them at the top of the clone; config.yml names the
+   keystore by a relative path.
+2. **`repo/`, `archive/` and `tmp/`**, copied from the old machine. `fdroid update` writes
+   the index from whatever APKs are in `repo/` and `archive/`, and `fetch-new.py` fetches
+   only each app's newest release, so an update from a clone without them would drop every
+   older version from the feed at the next upload. `tmp/` holds fdroid's cache, with the
+   date each APK was added. If the old machine is gone, download `repo/` and `archive/`
+   (the APKs and all) from the server instead; only the added dates are lost.
+3. **The tools:** fdroidserver as below; the Android SDK at `~/Android/Sdk` (or set
+   `ANDROID_HOME`), with build-tools 34 for `apksigner` and any version for `aapt2`; and
+   Python's `yaml`, `qrcode` and `PIL` (Ubuntu: `python3-yaml python3-qrcode python3-pil`).
+   Redrawing the link-preview cards (`make-cards.py`) also wants a Lunacy checkout, for its
+   fonts; publishing doesn't.
+
+Then `./add-apks.sh` with no arguments: it re-signs the index and rewrites the pages, and
+the result should list the same APKs the server has. Ubuntu is what this has been run on;
+on a Mac, add-apks.sh does without systemd's memory cap, and fdroidserver has to come from
+pip with the same pinned versions.
+
 ## Reviewing a pull request
 
 - The application id is the app's real one and isn't taken.
