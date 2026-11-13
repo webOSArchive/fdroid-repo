@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An F-Droid repository of Android apps from the webOS community: Lunacy, which runs webOS apps on Android, and more.">
+  <meta name="author" content="webOS Archive">
+  <meta property="og:title" content="webOS Archive F-Droid Repository">
+  <meta property="og:description" content="Android apps from the webOS community, with updates through F-Droid.">
+  <meta property="og:image" content="@@ADDRESS@@/icons/icon.png">
+  <title>F-Droid Repository | webOS Archive</title>
+  <link id="favicon" rel="icon" type="image/png" href="icons/icon.png">
+  <link href="https://www.webosarchive.org/app-template/web.css" rel="stylesheet" type="text/css">
+  <style>
+    a { text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    small { font-size: 15px; }
+    html, body { height: 100%; }
+    #page { width: 100%; height: 100%; border: 0; border-collapse: collapse; }
+    #page td { border: 0; padding: 0; }
+    #page-menu { height: 1px; }
+    #page-body { vertical-align: middle; }
+    #row { margin-left: auto; margin-right: auto; }
+    #hero { text-align: center; padding-top: 40px; }
+    @media all and (max-width: 767px) { #hero { padding-top: 0; } }
+
+    .add-button {
+      display: inline-block; padding: 12px 22px; margin: 4px 0 14px 0;
+      border-radius: 8px; background: #1976d2; color: #fff !important;
+      font-size: 19px; font-weight: 600;
+    }
+    .add-button:hover { background: #125ea8; text-decoration: none; }
+    .fineprint { font-size: 15px; line-height: 1.5; color: #555; }
+    .address {
+      font-family: "Menlo", "Consolas", "Droid Sans Mono", monospace; font-size: 14px;
+      background: #f2f2f2; border-radius: 4px; padding: 6px 8px; display: block;
+      word-break: break-all; margin: 4px 0 12px 0; color: #222;
+    }
+    #qr { width: 240px; height: 240px; image-rendering: pixelated; }
+
+    #apps { max-width: 916px; margin: 10px auto 30px auto; padding: 0 20px; text-align: left; }
+    #apps h2 { font-size: 26px; font-weight: 600; margin: 10px 0 14px 0; }
+    .app { overflow: hidden; padding: 14px 0; border-top: 1px solid #e3e3e3; }
+    .app img.icon { float: left; width: 64px; height: 64px; margin: 2px 16px 0 0; border-radius: 14px; }
+    .app .body { overflow: hidden; }
+    .app .name { font-size: 21px; font-weight: 600; }
+    .app .version { font-size: 15px; color: #888; font-weight: normal; margin-left: 6px; }
+    .app .summary { font-size: 17px; line-height: 1.5; margin: 4px 0 6px 0; }
+    .app .links { font-size: 15px; line-height: 1.8; }
+    .app .links a { margin-right: 14px; white-space: nowrap; }
+    #footer { text-align: center; padding: 10px 0 20px 0; }
+  </style>
+</head>
+<body>
+<table id="page" width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
+<tr><td id="page-menu">
+@@MENU@@
+</td></tr>
+<tr><td id="page-body" align="center" valign="middle">
+  <div id="row">
+    <div id="content" align="left">
+      <p style="font-size:30px;font-weight:600;"><img src="icons/icon.png" width="60" height="60" alt="" style="vertical-align:top;height:60px;width:60px;"> webOS Archive F-Droid Repository</p>
+      <p>Android apps from the webOS community, among them <a href="https://www.webosarchive.org/lunacy/">Lunacy</a>, which runs webOS apps on Android. Add this repository to F-Droid and you'll get each app's updates as they're released.</p>
+
+      <a class="add-button" href="fdroidrepos://@@ADDRESS_NOSCHEME@@?fingerprint=@@FINGERPRINT@@">Add to F-Droid</a>
+      <p class="fineprint">On your Android device, with <a href="https://f-droid.org/">F-Droid</a> installed. Or scan the code with F-Droid, or add it by hand: <b>Settings &rarr; Repositories &rarr; +</b>, and enter</p>
+      <span class="address">@@ADDRESS@@</span>
+      <p class="fineprint">Repository fingerprint (SHA-256):</p>
+      <span class="address">@@FINGERPRINT_SPACED@@</span>
+      <p class="fineprint">Made an Android app for webOS fans? <a href="https://github.com/webOSArchive/fdroid-repo#adding-your-app">Add it here</a>.</p>
+    </div>
+    <div id="hero">
+      <a href="@@ADDRESS@@?fingerprint=@@FINGERPRINT@@"><img id="qr" src="index.png" alt="QR code for this repository"></a>
+      <p class="fineprint">Scan with F-Droid to add this repository</p>
+    </div>
+  </div>
+
+  <div id="apps">
+    <h2>Apps</h2>
+    <div id="app-list"><p class="fineprint">Loading the app list&hellip;</p></div>
+  </div>
+
+  <div id="footer">
+    &copy; webOS Archive <span id="year">2026</span>
+    <div id="footer-links">
+      <a href="https://www.webosarchive.org/privacy.html">Privacy Policy</a>
+      <a href="https://github.com/webOSArchive/fdroid-repo">GitHub</a>
+    </div>
+  </div>
+</td></tr>
+</table>
+
+<script>
+// The app list, from the repository's own index (plain ES5 and XHR, as the other webOS Archive
+// pages are, so an old browser shows it too).
+(function () {
+  var list = document.getElementById('app-list');
+  document.getElementById('year').innerHTML = new Date().getFullYear();
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function en(o) { return o ? (o['en-US'] || o[Object.keys(o)[0]]) : ''; }
+  function mb(bytes) { return (bytes / 1048576).toFixed(1) + ' MB'; }
+  var ABI = { 'armeabi-v7a': '32-bit ARM', 'arm64-v8a': '64-bit ARM', 'x86': 'x86', 'x86_64': 'x86-64' };
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'index-v2.json', true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) return;
+    var index;
+    try { index = JSON.parse(xhr.responseText); } catch (e) { index = null; }
+    if (xhr.status !== 200 || !index || !index.packages) {
+      list.innerHTML = '<p class="fineprint">The app list couldn\'t be loaded. The apps are all in F-Droid once the repository is added.</p>';
+      return;
+    }
+    var apps = [];
+    for (var id in index.packages) apps.push({ id: id, p: index.packages[id] });
+    apps.sort(function (a, b) { return (b.p.metadata.lastUpdated || 0) - (a.p.metadata.lastUpdated || 0); });
+
+    var html = '';
+    for (var i = 0; i < apps.length; i++) {
+      var m = apps[i].p.metadata, versions = [];
+      for (var h in apps[i].p.versions) versions.push(apps[i].p.versions[h]);
+      versions.sort(function (a, b) { return b.manifest.versionCode - a.manifest.versionCode; });
+      var newest = versions.length ? versions[0].manifest.versionCode : null;
+      var icon = en(m.icon);
+      var links = '';
+      for (var v = 0; v < versions.length && versions[v].manifest.versionCode === newest; v++) {
+        var f = versions[v].file, abi = versions[v].manifest.nativecode;
+        var label = abi && abi.length === 1 ? (ABI[abi[0]] || abi[0]) + ' APK' : 'APK';
+        links += '<a href="' + esc(f.name.replace(/^\//, '')) + '">&#8681; ' + esc(label) + '</a> <small>(' + mb(f.size) + ')</small> ';
+      }
+      if (m.sourceCode) links += '<a href="' + esc(m.sourceCode) + '">Source</a>';
+      if (m.changelog) links += '<a href="' + esc(m.changelog) + '">What\'s new</a>';
+      html += '<div class="app">' +
+        (icon ? '<img class="icon" src="' + esc(icon.name.replace(/^\//, '')) + '" alt="">' : '') +
+        '<div class="body"><div class="name">' + esc(en(m.name)) +
+        (versions.length ? '<span class="version">' + esc(versions[0].manifest.versionName) + '</span>' : '') + '</div>' +
+        '<div class="summary">' + esc(en(m.summary)) + '</div>' +
+        '<div class="links">' + links + '</div></div></div>';
+    }
+    list.innerHTML = html || '<p class="fineprint">No apps yet.</p>';
+  };
+  xhr.send(null);
+})();
+</script>
+</body>
+</html>

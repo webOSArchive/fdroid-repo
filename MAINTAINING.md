@@ -11,6 +11,14 @@ For whoever holds the repository's signing key. Contributors don't need any of t
 - `add-apks.sh <apk>...`: adds APKs on hand (copied into `repo/` as
   `<id>_<versionCode>[_arm32|_arm64].apk`) and re-signs the index. With no arguments it only
   re-signs, after a change to `metadata/`.
+- `metadata/<application id>/en-US/icon.png`: an app's icon. Apps with adaptive launcher
+  icons need one, since fdroid update can't take a PNG icon from their APKs.
+- `make-page.py` and `web/`: the repository's web page (`repo/index.html`, and the QR code
+  `repo/index.png`), in the webOS Archive's site template, with the shared menu taken fresh from
+  www.webosarchive.org (its analytics left out; `web/menu-fallback.html` if it can't be
+  reached). add-apks.sh runs it after every update. fdroid update leaves a page alone once it
+  lacks fdroid's "auto-generated" comment, so this one stays. The app list is read from
+  `index-v2.json` by the page itself.
 - `icons/repo-icon.png`: the repository's icon (Lunacy's, for now: see Lunacy's Meta/NOTICE).
 
 Not in git: `config.yml` (the repository's settings and its keystore's passwords),

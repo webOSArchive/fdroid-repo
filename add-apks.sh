@@ -36,4 +36,6 @@ cp icons/repo-icon.png icon.png
 # Capped and niced, so a runaway can't take the machine with it; fdroid update itself takes
 # seconds and well under a gigabyte.
 ANDROID_HOME=$SDK systemd-run --user --scope -q -p MemoryMax=6G timeout 900 nice "$FDROID" update
+# The repository's web page, in the webOS Archive's site template (make-page.py).
+python3 -I make-page.py
 echo "Ready to upload: only repo/ and archive/ (the rest stays here) to https://stacks.webosarchive.org/feeds/fdroid/"
